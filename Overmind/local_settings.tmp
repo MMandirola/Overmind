@@ -1,0 +1,14 @@
+# Define folder where to store replay files
+REPLAYS_DIR = '/home/sc2/dev/Overmind/Replays/'
+
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'overmind',
+        'USER': 'overmind',
+        'PASSWORD': 'overmind',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
