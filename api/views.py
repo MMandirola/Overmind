@@ -4,6 +4,10 @@ from tastypie.resources import ModelResource
 from api.models import Replays
 from tastypie.authorization import Authorization
 from django.conf import settings
+from pymongo import MongoClient
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+import json
 
 # Folder where to store replay files
 REPLAYS_DIR = settings.REPLAYS_DIR
@@ -28,3 +32,15 @@ class ReplaysResource(ModelResource):
         replay_file.close()
 
         return bundle
+@csrf_exempt
+def store_rules(request):
+    #Step 1: Connect to MongoDB - Note: Change connection string as needed
+    client = MongoClient('localhost:27017')
+    db=client.business
+    #Step 2: Insert in the collection
+    if request.method == 'GET':
+        return HttpResponse("Ok")
+    elif request.method == 'POST':
+        print(request.body)
+        result = db.reviews.insert_one(json.loads(request.body))
+        return HttpResponse("Ok")
