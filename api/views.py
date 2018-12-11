@@ -1,30 +1,57 @@
 from django.shortcuts import render
 import base64
-from tastypie.resources import ModelResource
 from api.models import Replays
-from tastypie.authorization import Authorization
 from django.conf import settings
-
+import random
+from django.http import JsonResponse, HttpResponseNotFound, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 # Folder where to store replay files
 REPLAYS_DIR = settings.REPLAYS_DIR
 
-class ReplaysResource(ModelResource):
-    class Meta:
-        queryset = Replays.objects.all()
-        resource_name = 'replays'
-        authorization = Authorization()
-        fields = ['title', 'base64_file', 'date'] # Limiting fields
 
-    # obj_create override, in order to do something when on POST
-    def obj_create(self,bundle,**kwargs):
-        bundle = super(ReplaysResource,self).obj_create(bundle,**kwargs)
+def replays(request):
+    player = request.GET.get("player", "")
+    oponent = request.GET.get("oponent", "")
+    if(player):
+        if(oponent):
+            replays = Replays.objects.filter(
+                processed=False, player=player, oponent=oponent)
+            return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
+        else:
+            replays = Replays.objects.filter(
+                processed=False, player=player)
+            return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
+    else:
+        if(oponent):
+            replays = Replays.objects.filter(
+                processed=False, oponent=oponent)
+            return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
+        else:
+            replays = Replays.objects.filter(
+                processed=False)
+            return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
 
-        # Save recieved base64 encoded file
-        request_base64_file = bundle.data['base64_file']
-        request_title = bundle.data['title']
-        fullpath = REPLAYS_DIR + request_title
-        replay_file = open(fullpath, "wb")
-        replay_file.write(base64.b64decode(request_base64_file))
-        replay_file.close()
 
-        return bundle
+def replays_classify(request):
+    replays = Replays.objects.filter(
+        processed=False, player="", oponent="")
+    return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
+
+
+@csrf_exempt
+def classify(request):
+    if request.method == "POST":
+        id = request.POST.get("id")
+        player = request.POST.get("player")
+        opponent = request.POST.get("opponent")
+        map = request.POST.get("map")
+        replays = Replays.objects.filter(
+            processed=False, title=id, player="", oponent="")
+        if replays:
+            replay = replays[0]
+            replay.player = player
+            replay.oponent = opponent
+            replay.map = map
+            replay.save()
+            return HttpResponse()
+    return HttpResponseNotFound()
