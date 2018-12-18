@@ -45,6 +45,7 @@ def classify(request):
         player = request.POST.get("player")
         opponent = request.POST.get("opponent")
         map = request.POST.get("map")
+
         replays = Replays.objects.filter(
             processed=False, title=id, player="", oponent="")
         if replays:

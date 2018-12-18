@@ -109,3 +109,4 @@ venv.bak/
 # Replays folder
 Replays/*
 !Replays/.gitkeep
+.fr-NaalUM/*
