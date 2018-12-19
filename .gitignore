@@ -110,3 +110,4 @@ venv.bak/
 Replays/*
 !Replays/.gitkeep
 .fr-NaalUM/*
+static

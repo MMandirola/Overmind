@@ -98,7 +98,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
+# define your base directory
+# It will be `absolute/path/to/demo3`
+# define where your static files will be collected
+# It will be `absolute/path/to/demo3/static`
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# keep it empty for the moment
+STATICFILES_DIRS = (
+)
 # Import local settings
 try:
     from .local_settings import *
