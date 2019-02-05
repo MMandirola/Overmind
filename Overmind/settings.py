@@ -107,6 +107,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = (
 )
 # Import local settings
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 210000000
 try:
     from .local_settings import *
 except ImportError:

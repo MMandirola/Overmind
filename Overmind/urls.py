@@ -8,6 +8,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^replays/classify', views.replays_classify),
     url(r'^replays/', views.replays),
-    url(r'^classify/', views.classify)
+    url(r'^classify/', views.classify),
+    url(r'^mode/', views.mode),
+    url(r'^proccess/', views.proccess),
 
 ]
