@@ -35,38 +35,21 @@ def mode(request):
 def replays(request):
     player = request.GET.get("player", "")
     oponent = request.GET.get("oponent", "")
+    map = request.GET.get("map", "")
+    keyargs = {}
     if(player):
-        if(oponent):
-            replays = Replays.objects.filter(
-                processed=False, player=player, oponent=oponent)[:1000]
-            if replays:
-                return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
-            else:
-                return HttpResponseNotFound("No replays")
-        else:
-            replays = Replays.objects.filter(
-                processed=False, player=player)[:1000]
-            if replays:
-                return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
-            else:
-                return HttpResponseNotFound("No replays")
+        keyargs["player"] = player
+    if oponent:
+        keyargs["oponent"] = oponent
+    if map:
+        keyargs["map"] = map
+    keyargs["processed"] = False
+    replays = Replays.objects.filter(**keyargs)[:1000]
+    if replays:
+        return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
     else:
-        if(oponent):
-            replays = Replays.objects.filter(
-                processed=False, oponent=oponent)[:1000]
-            if replays:
-                return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
-            else:
-                return HttpResponseNotFound("No replays")
-        else:
-            replays = Replays.objects.filter(
-                processed=False)[:1000]
-            if(replays):
-                return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
-            else:
-                return HttpResponseNotFound("No replays")
-
-
+        return HttpResponseNotFound("No replays")
+        
 def replays_classify(request):
     replays = Replays.objects.filter(
         processed=False, player="", oponent="")[:1000]
