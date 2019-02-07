@@ -8,9 +8,14 @@ from django.views.decorators.csrf import csrf_exempt
 import numpy as np
 from django.core.serializers import serialize
 import json
-
+from pymongo import MongoClient
+import pymongo
 # Folder where to store replay files
 REPLAYS_DIR = settings.REPLAYS_DIR
+
+client = MongoClient()
+mongo_db = client.sc2
+db_observations = mongo_db.observations
 
 def mode(request):
     if request.method == "GET":
@@ -96,15 +101,65 @@ def proccess(request):
         id = request.POST.get("id")
         observations = request.POST.get("observations")
         observations = json.loads(observations)
-        # print(observations)
-        replays = Replays.objects.filter(
-            processed=False, title=id, player="", oponent="")
-        if replays:
-            replay = replays[0]
-            replay.player = player
-            replay.oponent = opponent
-            replay.map = map
-            replay.save()
-            return HttpResponse()
-    return HttpResponseNotFound()
+        for observation in observations:
+            db_obs = db_observations.find_one({
+                "observation":observation["observation"],
+                "mapMetadata": observation["mapMetadata"]
+                }
+            )
+            if not db_obs:
+                db_observations.insert_one({
+                    "observation": observation["observation"],
+                    "mapMetadata": observation["mapMetadata"],
+                    "metadata": {
+                        "playerId": observation["metadata"]["playerId"],
+                        "races": observation["metadata"]["races"],
+                        "map": observation["metadata"]["map"]
+                    },
+                    "replays": [id],
+                    "actions": [
+                        {
+                            "action": action,
+                            "wins": 1 if observation["metadata"]["results"][(observation["metadata"]["playerId"]) - 1] == 1 else 0,
+                            "looses": 0 if observation["metadata"]["results"][(observation["metadata"]["playerId"]) - 1] == 1 else 1,
+                            "games": 1
+                            
+                        } for action in observation["actions"]
+                    ]
+                })
+            else:
+                if id not in db_obs["replays"]:
+                    db_obs["replays"].append(id)
+                    for action in db_obs["actions"]:
+                        if action["action"] in observation["actions"]:
+                            action["wins"] += (1 if observation["metadata"]["results"][(observation["metadata"]["playerId"]) - 1] == 1 else 0)
+                            action["looses"] += (0 if observation["metadata"]["results"][(observation["metadata"]["playerId"]) - 1] == 1 else 1)
+                            action["games"] += 1
+                    for action in observation["actions"]:
+                        if action not in map(lambda x : x["action"], db_obs["actions"]):
+                            db_obs["actions"].append(
+                                {
+                                    "action": action,
+                                    "wins": 1 if observation["metadata"]["results"][(observation["metadata"]["playerId"]) - 1] == 1 else 0,
+                                    "looses": 0 if observation["metadata"]["results"][(observation["metadata"]["playerId"]) - 1] == 1 else 1,
+                                    "games": 1
+                                },
+                            )
+                    db_observations.replace_one({
+                    "observation":observation["observation"],
+                    "mapMetadata": observation["mapMetadata"]
+                    }, db_obs)                
+
+        return HttpResponse()
+    else:
+        return HttpResponseNotFound()
+
+@csrf_exempt
+def finish(request):
+    if request.method == "POST":
+        id = request.POST.get("id")
+        Replays.objects.filter(title=id).update(processed=True)
+        return HttpResponse()
+    else:
+        return HttpResponseNotFound()
 
