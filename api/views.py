@@ -44,8 +44,7 @@ def replays(request):
     if map:
         keyargs["map"] = map
     keyargs["processed"] = False
-    keyargs["missversion"] = False
-    replays = Replays.objects.filter(**keyargs)[:1000]
+    replays = Replays.objects.filter(**keyargs)[:100]
     if replays:
         return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
     else:
@@ -53,7 +52,7 @@ def replays(request):
         
 def replays_classify(request):
     replays = Replays.objects.filter(
-        processed=False, player="", oponent="")[:1000]
+        processed=False, player="", oponent="")[:100]
     if replays:
         return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
     else:
@@ -128,7 +127,7 @@ def finish(request):
 def mark_misversion(request):
     if request.method == "POST":
         id = request.POST.get("id")
-        Replays.objects.filter(title=id).update(missversion=True)
+        Replays.objects.filter(title=id).update(processed=True)
         return HttpResponse()
     else:
         return HttpResponseNotFound()

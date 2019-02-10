@@ -3,7 +3,7 @@ from api.models import Replays, Mode
 
 
 class ReplayAdmin(admin.ModelAdmin):
-    list_display = ('title', 'map', 'player', 'oponent', 'processed','missversion')
+    list_display = ('title', 'map', 'player', 'oponent', 'processed')
     list_filter = ('map', 'player', 'oponent', 'processed')
 
 class ModeAdmin(admin.ModelAdmin):
