@@ -134,7 +134,7 @@ def mark_misversion(request):
 
 def sample(request):
     if request.method == "GET":
-        n = request.GET.get("n", 7000)
+        n = int(request.GET.get("n", 7000))
         observations = db_observations.aggregate([ { "$sample": { "size": n } } ], allowDiskUse=True)
         return JsonResponse({"observations" : list(observations)})
     else:
