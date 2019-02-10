@@ -44,6 +44,7 @@ def replays(request):
     if map:
         keyargs["map"] = map
     keyargs["processed"] = False
+    keyargs["missversion"] = False
     replays = Replays.objects.filter(**keyargs)[:1000]
     if replays:
         return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
@@ -78,60 +79,37 @@ def classify(request):
             return HttpResponse()
     return HttpResponseNotFound()
 
+def dict_compare(d1, d2, ignored_keys):
+    return {k:v for k,v in d1.items() if k not in ignored_keys} == {k:v for k,v in d2.items() if k not in ignored_keys}
 @csrf_exempt
 def proccess(request):
+    ignored_keys = ["games", "wins", "looses"]
     if request.method == "POST":
-        id = request.POST.get("id")
         observations = request.POST.get("observations")
         observations = json.loads(observations)
         for observation in observations:
             db_obs = db_observations.find_one({
-                "observation":observation["observation"],
-                "mapMetadata": observation["mapMetadata"]
-                }
-            )
+                "observation":observation["observation"]
+            })
             if not db_obs:
-                db_observations.insert_one({
-                    "observation": observation["observation"],
-                    "mapMetadata": observation["mapMetadata"],
-                    "metadata": {
-                        "playerId": observation["metadata"]["playerId"],
-                        "races": observation["metadata"]["races"],
-                        "map": observation["metadata"]["map"]
-                    },
-                    "replays": [id],
-                    "actions": [
-                        {
-                            "action": action,
-                            "wins": 1 if observation["metadata"]["results"][(observation["metadata"]["playerId"]) - 1] == 1 else 0,
-                            "looses": 0 if observation["metadata"]["results"][(observation["metadata"]["playerId"]) - 1] == 1 else 1,
-                            "games": 1
-                            
-                        } for action in observation["actions"]
-                    ]
-                })
+                db_observations.insert_one(observation)
             else:
-                if id not in db_obs["replays"]:
-                    db_obs["replays"].append(id)
-                    for action in db_obs["actions"]:
-                        if action["action"] in observation["actions"]:
-                            action["wins"] += (1 if observation["metadata"]["results"][(observation["metadata"]["playerId"]) - 1] == 1 else 0)
-                            action["looses"] += (0 if observation["metadata"]["results"][(observation["metadata"]["playerId"]) - 1] == 1 else 1)
-                            action["games"] += 1
-                    for action in observation["actions"]:
-                        if action not in map(lambda x : x["action"], db_obs["actions"]):
-                            db_obs["actions"].append(
-                                {
-                                    "action": action,
-                                    "wins": 1 if observation["metadata"]["results"][(observation["metadata"]["playerId"]) - 1] == 1 else 0,
-                                    "looses": 0 if observation["metadata"]["results"][(observation["metadata"]["playerId"]) - 1] == 1 else 1,
-                                    "games": 1
-                                },
-                            )
-                    db_observations.replace_one({
-                    "observation":observation["observation"],
-                    "mapMetadata": observation["mapMetadata"]
-                    }, db_obs)                
+                for action in db_obs["actions"]:
+                    matching_actions = list(filter(lambda x: dict_compare(x, action, ignored_keys), observation["actions"]))
+                    if len(matching_actions):
+                        action["wins"] += matching_actions[0]["wins"]
+                        action["looses"] += matching_actions[0]["looses"]
+                        action["games"] += matching_actions[0]["games"]
+                for action in observation["actions"]:
+                    matching_actions = list(filter(lambda x: dict_compare(x, action, ignored_keys), db_obs["actions"]))
+                    if not matching_actions:
+                        db_obs["actions"].append(action)
+                db_obs["wins"] += observation["wins"]
+                db_obs["looses"] += observation["looses"]
+                db_obs["games"] += observation["games"]
+                db_observations.replace_one({
+                "observation":observation["observation"],
+                }, db_obs)                
 
         return HttpResponse()
     else:
@@ -142,6 +120,15 @@ def finish(request):
     if request.method == "POST":
         id = request.POST.get("id")
         Replays.objects.filter(title=id).update(processed=True)
+        return HttpResponse()
+    else:
+        return HttpResponseNotFound()
+
+@csrf_exempt
+def mark_misversion(request):
+    if request.method == "POST":
+        id = request.POST.get("id")
+        Replays.objects.filter(title=id).update(missversion=True)
         return HttpResponse()
     else:
         return HttpResponseNotFound()

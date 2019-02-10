@@ -7,6 +7,7 @@ class Replays(models.Model):
     extra = models.TextField()
     date = models.DateTimeField(auto_now_add=True, null=True)
     processed = models.BooleanField(default=False)
+    missversion = models.BooleanField(default=False)
     player = models.CharField(max_length=200)
     oponent = models.CharField(max_length=200)
     map = models.CharField(max_length=200)
