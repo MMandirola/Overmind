@@ -12,5 +12,6 @@ urlpatterns = [
     url(r'^mode/', views.mode),
     url(r'^proccess/finish', views.finish),
     url(r'^proccess/', views.proccess),
-    url(r'^missversion/', views.mark_misversion)
+    url(r'^missversion/', views.mark_misversion),
+    url(r'^sample/', views.sample)
 ]
