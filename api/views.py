@@ -10,6 +10,8 @@ from django.core.serializers import serialize
 import json
 from pymongo import MongoClient
 import pymongo
+from bson.json_util import dumps
+
 # Folder where to store replay files
 REPLAYS_DIR = settings.REPLAYS_DIR
 
@@ -136,7 +138,7 @@ def sample(request):
     if request.method == "GET":
         n = int(request.GET.get("n", 7000))
         observations = db_observations.aggregate([ { "$sample": { "size": n } } ], allowDiskUse=True)
-        return JsonResponse({"observations" : list(observations)})
+        return HttpResponse(dumps(observations))
     else:
         return HttpResponseNotFound
 
