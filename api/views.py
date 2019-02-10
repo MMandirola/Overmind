@@ -136,7 +136,7 @@ def sample(request):
     if request.method == "GET":
         n = request.GET.get("n", 7000)
         observations = db_observations.aggregate([ { "$sample": { "size": n } } ], allowDiskUse=True)
-        return JsonResponse(observations)
+        return JsonResponse({"observations" : observations})
     else:
         return HttpResponseNotFound
 
