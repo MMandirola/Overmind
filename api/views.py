@@ -138,17 +138,19 @@ def sample(request):
     if request.method == "GET":
         n = int(request.GET.get("n", 1))
         observations = []
-        for i in range(0, 500):
+        for i in range(0,1800):
+            pipeline = [ 
+                {"$match": {"observation.loop": {
+                    "$gte": i * 24,
+                    "$lt": (i + 1) * 24
+                }}},
+                { "$sample": { "size": n } } 
+            ]
+            print(pipeline)
             print(i)
             observations += db_observations.aggregate(
-                [ 
-                    {"$match": {"observation.loop": {
-                        "gt": i * 72,
-                        "lt": (i + 1) * 72
-                    }}},
-                    { "$sample": { "size": n } } 
-                ],
-                allowDiskUse=True)
+            pipeline,
+            allowDiskUse=True)
         return HttpResponse(dumps(observations))
     else:
         return HttpResponseNotFound
