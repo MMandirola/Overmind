@@ -136,8 +136,15 @@ def mark_misversion(request):
 
 def sample(request):
     if request.method == "GET":
-        n = int(request.GET.get("n", 7000))
-        observations = db_observations.aggregate([ { "$sample": { "size": n } } ], allowDiskUse=True)
+        n = int(request.GET.get("n", 1))
+        observations = []
+        for i in range(0, 1600):
+            observations += db_observations.aggregate(
+                [ 
+                    {"$match": {"observation.loop": i * 24}}
+                    { "$sample": { "size": n } } 
+                ],
+                allowDiskUse=True)
         return HttpResponse(dumps(observations))
     else:
         return HttpResponseNotFound
