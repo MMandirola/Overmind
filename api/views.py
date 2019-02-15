@@ -142,7 +142,10 @@ def sample(request):
             print(i)
             observations += db_observations.aggregate(
                 [ 
-                    {"$match": {"observation.loop": i * 72}},
+                    {"$match": {"observation.loop": {
+                        "gt": i * 72,
+                        "lt": (i + 1) * 72
+                    }}},
                     { "$sample": { "size": n } } 
                 ],
                 allowDiskUse=True)
