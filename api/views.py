@@ -141,7 +141,7 @@ def sample(request):
         for i in range(0, 1600):
             observations += db_observations.aggregate(
                 [ 
-                    {"$match": {"observation.loop": i * 24}}
+                    {"$match": {"observation.loop": i * 24}},
                     { "$sample": { "size": n } } 
                 ],
                 allowDiskUse=True)
