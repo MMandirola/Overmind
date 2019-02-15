@@ -138,11 +138,11 @@ def sample(request):
     if request.method == "GET":
         n = int(request.GET.get("n", 1))
         observations = []
-        for i in range(0,500):
+        for i in range(0,250):
             pipeline = [ 
                 {"$match": {"observation.loop": {
-                    "$gte": i * 86,
-                    "$lt": (i + 1) * 86
+                    "$gte": i * 172,
+                    "$lt": (i + 1) * 172
                 }}},
                 { "$sample": { "size": n } } 
             ]
