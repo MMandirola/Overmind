@@ -138,10 +138,11 @@ def sample(request):
     if request.method == "GET":
         n = int(request.GET.get("n", 1))
         observations = []
-        for i in range(0, 1600):
+        for i in range(0, 500):
+            print(i)
             observations += db_observations.aggregate(
                 [ 
-                    {"$match": {"observation.loop": i * 24}},
+                    {"$match": {"observation.loop": i * 72}},
                     { "$sample": { "size": n } } 
                 ],
                 allowDiskUse=True)
