@@ -1,6 +1,6 @@
 from django.shortcuts import render
 import base64
-from api.models import Replays, Mode
+from api.models import Replays, Mode, Stat, Feedback
 from django.conf import settings
 import random
 from django.http import JsonResponse, HttpResponseNotFound, HttpResponse
@@ -51,7 +51,16 @@ def replays(request):
         return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
     else:
         return HttpResponseNotFound("No replays")
-        
+
+def feedback(request):
+    keyargs = {}
+    keyargs["processed"] = False
+    replays = Feedback.objects.filter(**keyargs)[:100]
+    if replays:
+        return JsonResponse(replays[random.randint(0, len(replays) - 1)].toDict())
+    else:
+        return HttpResponseNotFound("No replays")
+
 def replays_classify(request):
     replays = Replays.objects.filter(
         processed=False, player="", oponent="")[:100]
@@ -126,6 +135,15 @@ def finish(request):
         return HttpResponseNotFound()
 
 @csrf_exempt
+def feedback_finish(request):
+    if request.method == "POST":
+        id = request.POST.get("id")
+        Feedback.objects.filter(title=id).update(processed=True)
+        return HttpResponse()
+    else:
+        return HttpResponseNotFound()
+
+@csrf_exempt
 def mark_misversion(request):
     if request.method == "POST":
         id = request.POST.get("id")
@@ -153,5 +171,30 @@ def sample(request):
             allowDiskUse=True)
         return HttpResponse(dumps(observations))
     else:
-        return HttpResponseNotFound
+        return HttpResponseNotFound()
+@csrf_exempt
+def stats(request):
+    if request.method == "POST":
+        version = request.POST.get("version")
+        difficulty = request.POST.get("difficulty")
+        name = request.POST.get("name")
+        result = request.POST.get("result")
+        st = Stat(version, difficulty, name, result)
+        st.save()
+        return HttpResponse()
+    else:
+        return HttpResponseNotFound()
+@csrf_exempt
+def player_replay(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        base64_file = request.POST.get("base64_file")
+        st = Feedback(title, base64_file)
+        st.save()
+        return HttpResponse()
+    else:
+        return HttpResponseNotFound()
+
+
+
 

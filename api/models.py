@@ -20,6 +20,12 @@ class Replays(models.Model):
             "base64": self.base64_file,
         }
 
+class Stat(models.Model):
+    version = models.CharField(max_length=200)
+    difficulty = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
+    result = models.CharField(max_length=200)
+
 class Mode(models.Model):
     title = models.CharField(max_length=200)
     load = models.IntegerField(default=1)
@@ -34,3 +40,17 @@ class Mode(models.Model):
 
     def __str__(self):
         return (self.title)
+
+class Feedback(models.Model):
+    title = models.CharField(max_length=200, primary_key=True)
+    base64_file = models.TextField()
+    processed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return (self.title)
+
+    def toDict(self):
+        return {
+            "title": self.title,
+            "base64": self.base64_file,
+        }

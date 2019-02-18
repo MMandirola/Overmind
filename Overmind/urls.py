@@ -13,5 +13,9 @@ urlpatterns = [
     url(r'^proccess/finish', views.finish),
     url(r'^proccess/', views.proccess),
     url(r'^missversion/', views.mark_misversion),
-    url(r'^sample/', views.sample)
+    url(r'^sample/', views.sample),
+    url(r'^stats/', views.stats),
+    url(r'^player_replay/', views.player_replay),
+    url(r'^feedback/', views.feedback),
+    url(r'^feedback/finish', views.feedback_finish),
 ]
