@@ -179,8 +179,12 @@ def stats(request):
         difficulty = request.POST.get("difficulty")
         name = request.POST.get("name")
         result = request.POST.get("result")
-        st = Stat(version, difficulty, name, result)
-        st.save()
+        Stat.objects.create({
+            "version": version,
+            "difficulty": difficulty,
+            "name": name,
+            "result": result
+        })
         return HttpResponse()
     else:
         return HttpResponseNotFound()
