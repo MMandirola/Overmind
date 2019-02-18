@@ -16,6 +16,6 @@ urlpatterns = [
     url(r'^sample/', views.sample),
     url(r'^stats/', views.stats),
     url(r'^player_replay/', views.player_replay),
-    url(r'^feedback/', views.feedback),
     url(r'^feedback/finish', views.feedback_finish),
+    url(r'^feedback/', views.feedback),
 ]
