@@ -14,7 +14,7 @@ class Command(BaseCommand):
         client = MongoClient()
         mongo_db = client.sc2
         db_observations = mongo_db.observations
-        pipelines = {str(i),[
+        pipelines = {str(i):[
             {"$match": {"observation.loop": i * 24}},
             {"$sort": {"observation.games": -1}},
             {"$limit": 100}
@@ -31,5 +31,5 @@ class Command(BaseCommand):
         ]
         print(main_pipeline)
         observations = db_observations.aggregate(main_pipeline, allowDiskUse=True)
-        
+
 
