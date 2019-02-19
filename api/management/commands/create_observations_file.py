@@ -7,6 +7,7 @@ import os
 from django.conf import settings
 REPLAYS_DIR = settings.REPLAYS_DIR
 from pymongo import MongoClient
+import itertools
 
 class Command(BaseCommand):
 
@@ -14,22 +15,15 @@ class Command(BaseCommand):
         client = MongoClient()
         mongo_db = client.sc2
         db_observations = mongo_db.observations
-        pipelines = {str(i):[
-            {"$match": {"observation.loop": i * 24}},
-            {"$sort": {"observation.games": -1}},
-            {"$limit": 100}
-        ] for i in range(0, 1800)}
-        main_pipeline = [
-            {"$match": {"observation.loop": {
-                "$gte": 0,
-                "$lt": 43200
-            }}},
-            {"$facet" : pipelines},
-            {"$project": {"cases":{"$setUnion":["$" + str(i) for i in range(0, 1800)]}}},
-            {"$unwind": "$cases"},
-            {"$replaceRoot": { "newRoot": "$cases" }}
-        ]
-        print(main_pipeline)
-        observations = db_observations.aggregate(main_pipeline, allowDiskUse=True)
-
-
+        observations = []
+        obs_file = open("observations.json", "w")
+        for i in range(0,1800):
+            print(i)
+            pipeline = [
+                {"$match": {"observation.loop": i * 24}},
+                {"$sort": {"observation.games": -1}},
+                {"$limit": 100}
+            ]
+            observations += db_observations.aggregate(pipeline, allowDiskUse=True)
+        obs_file.write(observations)
+        
