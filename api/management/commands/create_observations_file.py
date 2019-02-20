@@ -8,6 +8,8 @@ from django.conf import settings
 REPLAYS_DIR = settings.REPLAYS_DIR
 from pymongo import MongoClient
 import itertools
+import time
+from bson.json_util import dumps
 
 class Command(BaseCommand):
 
@@ -19,11 +21,12 @@ class Command(BaseCommand):
         obs_file = open("observations.json", "w")
         for i in range(0,1800):
             print(i)
+            time.sleep(0.5)
             pipeline = [
                 {"$match": {"observation.loop": i * 24}},
                 {"$sort": {"observation.games": -1}},
-                {"$limit": 100}
+                {"$limit": 10}
             ]
             observations += db_observations.aggregate(pipeline, allowDiskUse=True)
-        obs_file.write(observations)
+        obs_file.write(dumps(observations))
         
