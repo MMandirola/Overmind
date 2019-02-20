@@ -16,7 +16,7 @@ from bson.json_util import dumps
 REPLAYS_DIR = settings.REPLAYS_DIR
 
 client = MongoClient()
-mongo_db = client.sc2
+mongo_db = client.sc22
 db_observations = mongo_db.observations
 
 def mode(request):
