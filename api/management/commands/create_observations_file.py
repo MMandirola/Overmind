@@ -18,14 +18,14 @@ class Command(BaseCommand):
         mongo_db = client.sc2
         db_observations = mongo_db.observations
         observations = []
-        obs_file = open("observations.json", "w")
-        for i in range(0,1800):
+        obs_file = open("static/observations.json", "w")
+        for i in range(0,180):
             print(i)
             time.sleep(0.5)
             pipeline = [
-                {"$match": {"observation.loop": i * 24}},
+                {"$match": {"observation.loop": i * 240}},
                 {"$sort": {"observation.games": -1}},
-                {"$limit": 10}
+                {"$limit": 200}
             ]
             observations += db_observations.aggregate(pipeline, allowDiskUse=True)
         obs_file.write(dumps(observations))
