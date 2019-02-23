@@ -234,10 +234,10 @@ def dashboard(request):
 
 
 def dashboard_data():
-    grouped_stats = Stat.objects.values('version', 'bot_player', 'data_source', 'difficulty', 'result').annotate(count_stats=Count('result'))
+    grouped_stats = Stat.objects.values('version', 'bot_player', 'difficulty', 'data_source', 'result').annotate(count_stats=Count('result'))
     data = {}
     for stat in grouped_stats:
-        key = str(stat['version']) + str(stat['bot_player']) + str(stat['data_source'])
+        key = str(stat['version']) + str(stat['bot_player']) + str(stat['difficulty']) + str(stat['data_source'])
         data.setdefault(key, {})[stat['result']] = stat.pop('count_stats')
         stat.pop('result')
         data[key].update(stat)
