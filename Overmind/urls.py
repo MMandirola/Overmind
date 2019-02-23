@@ -6,7 +6,7 @@ from api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^', views.dashboard),
+    url(r'^$', views.dashboard),
     url(r'^replays/classify', views.replays_classify),
     url(r'^replays/', views.replays),
     url(r'^classify/', views.classify),
