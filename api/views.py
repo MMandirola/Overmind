@@ -172,22 +172,30 @@ def sample(request):
         return HttpResponse(dumps(observations))
     else:
         return HttpResponseNotFound()
+
+
 @csrf_exempt
 def stats(request):
     if request.method == "POST":
         version = request.POST.get("version")
         difficulty = request.POST.get("difficulty")
         name = request.POST.get("name")
+        data_source = request.POST.get("data_source")
+        bot_player = request.POST.get("bot_player")
         result = request.POST.get("result")
         Stat.objects.create(**{
             "version": version,
             "difficulty": difficulty,
             "name": name,
+            "bot_player": bot_player,
+            "data_source": data_source,
             "result": result
         })
         return HttpResponse()
     else:
         return HttpResponseNotFound()
+
+
 @csrf_exempt
 def player_replay(request):
     if request.method == "POST":
@@ -198,7 +206,3 @@ def player_replay(request):
         return HttpResponse()
     else:
         return HttpResponseNotFound()
-
-
-
-

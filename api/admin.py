@@ -47,8 +47,8 @@ class ModeAdmin(admin.ModelAdmin):
     'difficulty_opponent', 'bot_player', 'bot_oponent')
 
 class StatAdmin(admin.ModelAdmin):
-    list_display = ('version', 'difficulty', 'name', 'result')
-    list_filter = ('version', 'difficulty', 'result')
+    list_display = ('version', 'bot_player', 'data_source', 'difficulty', 'result')
+    list_filter = ('version', 'difficulty', 'bot_player', 'result')
     actions = [download_replays]
 
 class FeedbackAdmin(admin.ModelAdmin):

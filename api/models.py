@@ -12,7 +12,7 @@ class Replays(models.Model):
     map = models.CharField(max_length=200)
 
     def __str__(self):
-        return (self.title)
+        return self.title
 
     def toDict(self):
         return {
@@ -20,11 +20,15 @@ class Replays(models.Model):
             "base64": self.base64_file,
         }
 
+
 class Stat(models.Model):
     version = models.CharField(max_length=200)
     difficulty = models.CharField(max_length=200)
     name = models.CharField(max_length=200)
     result = models.CharField(max_length=200)
+    bot_player = models.CharField(max_length=200, null=True, blank=True)
+    data_source = models.CharField(max_length=200, null=True, blank=True)
+
 
 class Mode(models.Model):
     title = models.CharField(max_length=200)
@@ -37,9 +41,11 @@ class Mode(models.Model):
     difficulty_opponent = models.CharField(max_length=200, null=True, blank=True)
     bot_player = models.CharField(max_length=200, null=True, blank=True)
     bot_oponent = models.CharField(max_length=200, null=True, blank=True)
+    data_source = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
-        return (self.title)
+        return self.title
+
 
 class Feedback(models.Model):
     title = models.CharField(max_length=200, primary_key=True)
@@ -47,7 +53,7 @@ class Feedback(models.Model):
     processed = models.BooleanField(default=False)
 
     def __str__(self):
-        return (self.title)
+        return self.title
 
     def toDict(self):
         return {
