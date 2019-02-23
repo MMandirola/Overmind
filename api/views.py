@@ -221,7 +221,7 @@ def dashboard(request):
             'won': row.get('1', 0),
             'lost': row.get('2', 0),
             'games': row.get('0', 0) + row.get('1', 0) + row.get('2', 0),
-            'winrate': row.get('1', 0) / completed_games if completed_games else 'N/A',
+            'winrate': "{0:.2f}%".format(100 * row.get('1', 0) / completed_games) if completed_games else 'N/A',
         }
         return formated_row
 
