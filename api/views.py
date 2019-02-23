@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.shortcuts import render
 import base64
 from api.models import Replays, Mode, Stat, Feedback
@@ -206,3 +207,35 @@ def player_replay(request):
         return HttpResponse()
     else:
         return HttpResponseNotFound()
+
+
+def dashboard(request):
+    def _format_row(row):
+        completed_games = row.get('1', 0) + row.get('2', 0)
+        formated_row = {
+            'version': row['version'],
+            'player': row['bot_player'],
+            'data_source': row['data_source'],
+            'difficulty': row['difficulty'],
+            'interrupted': row.get('0', 0),
+            'won': row.get('1', 0),
+            'lost': row.get('2', 0),
+            'games': row.get('0', 0) + row.get('1', 0) + row.get('2', 0),
+            'winrate': row.get('1', 0) / completed_games if completed_games else 'N/A',
+        }
+        return formated_row
+
+    data = dashboard_data()
+    formated_data = list(map(_format_row, data))
+    return render(request, 'index.html', context={"data": formated_data})
+
+
+def dashboard_data():
+    grouped_stats = Stat.objects.values('version', 'bot_player', 'data_source', 'difficulty', 'result').annotate(count_stats=Count('result'))
+    data = {}
+    for stat in grouped_stats:
+        key = str(stat['version']) + str(stat['bot_player']) + str(stat['data_source'])
+        data.setdefault(key, {})[stat['result']] = stat.pop('count_stats')
+        stat.pop('result')
+        data[key].update(stat)
+    return data.values()
