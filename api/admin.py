@@ -16,7 +16,8 @@ def download_replays(modeladmin, request, queryset):
     temp_folder = settings.BASE_DIR + "/tmp"
     if not os.path.isdir(temp_folder):
         os.makedirs(temp_folder)
-    for replay in queryset.all():
+    for stat in queryset.all():
+        replay = Feedback.objects.get(title=stat.name)
         file_name = "{}/{}".format(temp_folder, replay.title.split("/")[-1])
         filenames.append(file_name)
         replay_file = open(file_name, "wb")
@@ -47,12 +48,12 @@ class ModeAdmin(admin.ModelAdmin):
 
 class StatAdmin(admin.ModelAdmin):
     list_display = ('version', 'difficulty', 'name', 'result')
-    list_filter = ('version', 'difficulty', 'name', 'result')
+    list_filter = ('version', 'difficulty', 'result')
+    actions = [download_replays]
 
 class FeedbackAdmin(admin.ModelAdmin):
     list_display = ('title','processed')
     list_filter = ('processed',)
-    actions = [download_replays]
 
 admin.site.register(Replays, ReplayAdmin)
 admin.site.register(Mode, ModeAdmin)
