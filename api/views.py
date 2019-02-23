@@ -227,7 +227,8 @@ def dashboard(request):
 
     data = dashboard_data()
     formated_data = list(map(_format_row, data))
-    formated_data.sort()
+    formated_data.sort(
+        key=lambda x: (x['player'], x['data_source'], x['difficulty'], x['version']))
     return render(request, 'index.html', context={
         "data": formated_data,
         "games_played": Stat.objects.count(),

@@ -37,10 +37,10 @@
 Total observations collected: <strong>{{ observations }}</strong></p>
 <table id="stats">
     <tr>
-        <th>Version</th>
         <th>Player</th>
         <th>Data Source</th>
         <th>Difficult</th>
+        <th>Version</th>
         <th>Won</th>
         <th>Lost</th>
         <th>Interrupted</th>
@@ -49,10 +49,10 @@ Total observations collected: <strong>{{ observations }}</strong></p>
     </tr>
     {% for r in data %}
         <tr>
-            <td>{{ r.version }}</td>
             <td>{{ r.player }}</td>
             <td>{{ r.data_source }}</td>
             <td>{{ r.difficulty }}</td>
+            <td>{{ r.version }}</td>
             <td>{{ r.won }}</td>
             <td>{{ r.lost }}</td>
             <td>{{ r.interrupted }}</td>
