@@ -41,7 +41,7 @@ class Command(BaseCommand):
             if options.get('grouped'):
                 match_query = {"$match": {"observation.loop": loop_query, "games": {"$gte": 2}}}
             else:
-                match_query = {"$match": {"observation.loop": {"$gte": i * 240, "$lt": (i + 1) * 240}}}
+                match_query = {"$match": {"observation.loop": loop_query}}
             pipeline = [
                 match_query,
                 {"$sort": {"observation.games": -1}},
