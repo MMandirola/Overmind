@@ -27,21 +27,17 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         file_name = options.get('filename') if options.get('filename') is not None else 'observations'
         client = MongoClient()
-        mongo_db = client.sc2
+        mongo_db = client.sc22
         db_observations = mongo_db.observations
         observations = []
         obs_file = open("static/{}.json".format(file_name), "w")
         for i in range(0,180):
             print(i)
             time.sleep(0.5)
-            loop_query = {
-                "$gte": i * 240,
-                "$lt": (i + 1) * 240
-            }
             if options.get('grouped'):
-                match_query = {"$match": {"observation.loop": loop_query, "games": {"$gte": 2}}}
+                match_query = {"$match": {"observation.loop": 240 * i, "games": {"$gte": 2}}}
             else:
-                match_query = {"$match": {"observation.loop": loop_query}}
+                match_query = {"$match": {"observation.loop": 240 * i}}
             pipeline = [
                 match_query,
                 {"$sort": {"observation.games": -1}},
