@@ -41,11 +41,11 @@ class Command(BaseCommand):
             if options.get('grouped'):
                 match_query = {"$match": {"observation.loop": loop_query, "games": {"$gte": 2}}}
             else:
-                match_query = {"$match": {"observation.loop": loop_query}}
+                match_query = {"$match": {"observation.loop": {"$gte": i * 240, "$lt": (i + 1) * 240}}}
             pipeline = [
                 match_query,
-                {"$match": {"observation.loop": 0}},
                 {"$sort": {"observation.games": -1}},
+                {"$limit": 200}
             ]
             observations += db_observations.aggregate(pipeline, allowDiskUse=True)
         print("Writing to file {}.json".format(file_name))
