@@ -29,9 +29,10 @@ class Command(BaseCommand):
         client = MongoClient()
         mongo_db = client.sc22
         db_observations = mongo_db.observations
-        observations = []
         obs_file = open("static/{}.json".format(file_name), "w")
-        for i in range(0,180):
+        obs_file.write("[")
+        max_iter = 180
+        for i in range(0, max_iter):
             print(i)
             time.sleep(0.5)
             if options.get('grouped'):
@@ -43,7 +44,10 @@ class Command(BaseCommand):
                 {"$sort": {"observation.games": -1}},
                 {"$limit": 200}
             ]
-            observations += db_observations.aggregate(pipeline, allowDiskUse=True)
-        print("Writing to file {}.json".format(file_name))
-        obs_file.write(dumps(observations))
+            print("Writing chunk {}".format(i))
+            obs_file.write(dumps(db_observations.aggregate(pipeline, allowDiskUse=True))[1:-1])
+            if i < (max_iter - 1):
+                obs_file.write(",")
+        print("Finishing file {}.json".format(file_name))
+        obs_file.write("]")
         obs_file.close()
